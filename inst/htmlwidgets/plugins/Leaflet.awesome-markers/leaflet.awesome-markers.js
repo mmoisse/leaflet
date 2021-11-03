@@ -1,10 +1,9 @@
 /*
- Leaflet.AwesomeMarkers, a plugin that adds colorful iconic markers for Leaflet, based on the Font Awesome icons
- (c) 2012-2013, Lennard Voogdt
-
- https://leafletjs.com
- https://github.com/lvoogdt
- */
+  Leaflet.AwesomeMarkers, a plugin that adds colorful iconic markers for Leaflet, based on the Font Awesome icons
+  (c) 2012-2013, Lennard Voogdt
+  http://leafletjs.com
+  https://github.com/lvoogdt
+*/
 
 /*global L*/
 
@@ -20,20 +19,13 @@
 
     L.AwesomeMarkers.Icon = L.Icon.extend({
         options: {
-            iconSize: [35, 45],
-            iconAnchor:   [17, 42],
-            popupAnchor: [1, -32],
             shadowAnchor: [10, 12],
             shadowSize: [36, 16],
             className: 'awesome-marker',
-            prefix: 'glyphicon',
-            spinClass: 'fa-spin',
-            extraClasses: '',
-            icon: 'home',
-            markerColor: 'blue',
+            icon: 'block',
+            markerColor: 'white',
             iconColor: 'white',
-            iconRotate: 0,
-            font: 'monospace'
+            outlineColor: 'white',
         },
 
         initialize: function (options) {
@@ -41,66 +33,59 @@
         },
 
         createIcon: function () {
-            var div = document.createElement('div'),
-                options = this.options;
+            var options = L.Util.setOptions(this);
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            var path = document.createElementNS('http://www.w3.org/2000/svg', "path");
+            var backgroundCircle = document.createElementNS('http://www.w3.org/2000/svg', "circle");
+            var icongroup = document.createElementNS('http://www.w3.org/2000/svg', "g");
+            var icon = document.createElementNS('http://www.w3.org/2000/svg', "text");
 
-            if (options.icon) {
-                div.innerHTML = this._createInner();
-            }
+            svg.setAttribute('width', '31');
+            svg.setAttribute('height', '42');
+            svg.setAttribute('class', 'awesome-marker');
+            svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+            
+            backgroundCircle.setAttribute('cx', '15.5');
+            backgroundCircle.setAttribute('cy', '15');
+            backgroundCircle.setAttribute('r', '11');
+            backgroundCircle.setAttribute('fill', options.markerColor);
 
-            if (options.bgPos) {
-                div.style.backgroundPosition =
-                    (-options.bgPos.x) + 'px ' + (-options.bgPos.y) + 'px';
-            }
+            path.setAttributeNS(null, "d", "M15.6,1c-7.7,0-14,6.3-14,14c0,10.5,14,26,14,26s14-15.5,14-26C29.6,7.3,23.3,1,15.6,1z");
+            path.setAttribute('fill', options.markerColor);
+            path.setAttribute('stroke', options.outlineColor);
+            path.setAttribute('stroke-width', options.outlineWidth);
 
-            this._setIconStyles(div, 'icon-' + options.markerColor);
-            return div;
+            icon.textContent = options.icon;
+            icon.setAttribute('x', '7');
+            icon.setAttribute('y', '23');
+            icon.setAttribute('class', 'material-icons');
+            icon.setAttribute('fill', options.iconColor);
+            icon.setAttribute('font-family', 'Material Icons');
+
+            svg.appendChild(path);
+            svg.appendChild(backgroundCircle);
+            icongroup.appendChild(icon);
+            svg.appendChild(icongroup);
+
+            return svg;
         },
 
         _createInner: function() {
-            var iconClass,
-                iconSpinClass = "",
-                iconColorClass = "",
-                iconColorStyle = "",
-                options = this.options;
-
-            if(!options.prefix || (options.icon.slice(0,options.prefix.length+1) === options.prefix + "-")) {
-                iconClass = options.icon;
-            } else {
-                iconClass = options.prefix + "-" + options.icon;
-            }
+            var iconClass, iconSpinClass = "", iconColorClass = "", iconColorStyle = "", options = this.options;
 
             if(options.spin && typeof options.spinClass === "string") {
                 iconSpinClass = options.spinClass;
             }
 
             if(options.iconColor) {
-                if ((options.iconColor === 'white' || options.iconColor === 'black') &&
-                    options.prefix !== 'fa') {
+                if(options.iconColor === 'white' || options.iconColor === 'black') {
                     iconColorClass = "icon-" + options.iconColor;
-                } else if (options.prefix === 'fa' && options.iconColor === 'white') {
-                  iconColorClass = "fa-inverse";
                 } else {
-                    iconColorStyle = "color: " + options.iconColor + ";";
+                    iconColorStyle = "style='color: " + options.iconColor + "' ";
                 }
             }
-            if(options.font && options.text) {
-                iconColorStyle += "font-family: " + options.font + ";";
-            }
 
-            if(options.iconRotate && options.iconRotate !== 0) {
-                iconColorStyle += "-webkit-transform: rotate(" + options.iconRotate + "deg);";
-                iconColorStyle += "-moz-transform: rotate(" + options.iconRotate + "deg);";
-                iconColorStyle += "-o-transform: rotate(" + options.iconRotate + "deg);";
-                iconColorStyle += "-ms-transform: rotate(" + options.iconRotate + "deg);";
-                iconColorStyle += "transform: rotate(" + options.iconRotate + "deg);";
-            }
-            
-            if (options.text) {
-                return "<i style='" + iconColorStyle + "' class='" + options.extraClasses + " " + (options.prefix || "") + " " + iconSpinClass + " " + iconColorClass + "'>" + options.text + "</i>";
-            }
-
-            return "<i style='" + iconColorStyle + "' class='" + options.extraClasses + " " + (options.prefix || "") + " " + iconClass + " " + iconSpinClass + " " + iconColorClass + "'></i>";
+            return options.extraClasses + " " + iconClass + " " + iconSpinClass + " " + iconColorClass;
         },
 
         _setIconStyles: function (img, name) {
@@ -136,9 +121,9 @@
 
             this._setIconStyles(div, 'shadow');
             return div;
-        }
+      }
     });
-
+        
     L.AwesomeMarkers.icon = function (options) {
         return new L.AwesomeMarkers.Icon(options);
     };
